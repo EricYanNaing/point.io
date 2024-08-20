@@ -2,9 +2,12 @@ import { Form, Input, message } from "antd";
 import { loginUser, registerUser } from "../apicalls/auth";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import userSlice, { setUserId } from "../store/slices/userSlice";
 
 const AuthForm = ({ isLoginPage }) => {
   const [submitting, setSubmittting] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleOnFinish = async (values) => {
     setSubmittting(true);
@@ -15,6 +18,7 @@ const AuthForm = ({ isLoginPage }) => {
         if (resposne.isSuccess) {
           message.success(resposne.message);
           localStorage.setItem("token", resposne.token);
+          dispatch(setUserId(resposne.token));
           navigate("/profile");
         } else {
           throw new Error(resposne.message);
