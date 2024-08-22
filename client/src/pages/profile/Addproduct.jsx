@@ -1,8 +1,10 @@
-import { Checkbox, Col, Form, Input, Row, Select } from "antd";
+import { Checkbox, Col, Form, Input, Row, Select, message } from "antd";
 import TextArea from "antd/es/input/TextArea";
+import { sellProduct } from "../../apicalls/product";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 
-const Addproduct = () => {
+const Addproduct = ({ setActiveTabKey }) => {
+  const [form] = Form.useForm();
   const categoryOptions = [
     { value: "electronics", label: "Electronics" },
     { value: "fashion", label: "Fashion" },
@@ -27,10 +29,26 @@ const Addproduct = () => {
       value: "Voucher",
     },
   ];
+
+  const onFinishHandler = async (values) => {
+    console.log(values);
+    try {
+      const resposne = await sellProduct(values);
+      if (resposne.isSuccess) {
+        form.resetFields();
+        message.success(resposne.message);
+        setActiveTabKey("1");
+      } else {
+        throw new Error(resposne.message);
+      }
+    } catch (err) {
+      message.error(err.message);
+    }
+  };
   return (
     <section>
       <h1 className="text-2xl font-bold mb-2">What you want to sell?</h1>
-      <Form layout="vertical">
+      <Form layout="vertical" onFinish={onFinishHandler} form={form}>
         <Form.Item
           hasFeedback
           name="product_name"
@@ -44,7 +62,7 @@ const Addproduct = () => {
         </Form.Item>
         <Form.Item
           hasFeedback
-          name="description"
+          name="product_description"
           label="Description"
           rules={[
             {
@@ -59,7 +77,7 @@ const Addproduct = () => {
           <Col span={8}>
             <Form.Item
               hasFeedback
-              name="price"
+              name="product_price"
               label="Product Price"
               rules={[
                 { required: true, message: "Product Price must be included." },
@@ -86,7 +104,7 @@ const Addproduct = () => {
           <Col span={8}>
             <Form.Item
               hasFeedback
-              name="product_used_for"
+              name="product_usedFor"
               label=" Used For"
               rules={[
                 {

@@ -1,8 +1,11 @@
 import { Tabs } from "antd";
 import Products from "./Products";
 import Addproduct from "./Addproduct";
+import General from "./General";
+import { useState } from "react";
 
 const index = () => {
+  const [activeTabKey, setActiveTabKey] = useState("1");
   const items = [
     {
       key: "1",
@@ -11,8 +14,8 @@ const index = () => {
     },
     {
       key: "2",
-      label: "Add Product",
-      children: <Addproduct />,
+      label: "Sell Product",
+      children: <Addproduct setActiveTabKey={setActiveTabKey} />,
     },
     {
       key: "3",
@@ -21,12 +24,17 @@ const index = () => {
     },
     {
       key: "4",
-      label: "Profile",
-      children: "Content of Tab Pane 3",
+      label: "General",
+      children: <General />,
     },
   ];
   return (
-    <Tabs defaultActiveKey="1" items={items} tabPosition={"left"}>
+    <Tabs
+      onChange={(key) => setActiveTabKey(key)}
+      activeKey={activeTabKey}
+      items={items}
+      tabPosition={"left"}
+    >
       Profile
     </Tabs>
   );
