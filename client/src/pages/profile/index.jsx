@@ -2,20 +2,53 @@ import { Tabs } from "antd";
 import Products from "./Products";
 import Addproduct from "./Addproduct";
 import General from "./General";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getAllProducts } from "../../apicalls/product";
 
-const index = () => {
+const Index = () => {
   const [activeTabKey, setActiveTabKey] = useState("1");
+  const [products, setProducts] = useState([]);
+  const [editMode, setEditMode] = useState(false);
+  const [editProductId, setEditProductId] = useState(null);
+
+  const getProducts = async () => {
+    try {
+      const resposne = await getAllProducts();
+      if (resposne.isSuccess) {
+        //codes
+        setProducts(resposne.productDocs);
+      } else {
+        throw new Error(resposne.message);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const items = [
     {
       key: "1",
       label: "Products",
-      children: <Products />,
+      children: (
+        <Products
+          products={products}
+          setActiveTabKey={setActiveTabKey}
+          setEditMode={setEditMode}
+          getProducts={getProducts}
+          setEditProductId={setEditProductId}
+        />
+      ),
     },
     {
       key: "2",
-      label: "Sell Product",
-      children: <Addproduct setActiveTabKey={setActiveTabKey} />,
+      label: "Manage Product",
+      children: (
+        <Addproduct
+          setActiveTabKey={setActiveTabKey}
+          getProducts={getProducts}
+          editMode={editMode}
+          editProductId={editProductId}
+        />
+      ),
     },
     {
       key: "3",
@@ -28,9 +61,18 @@ const index = () => {
       children: <General />,
     },
   ];
+  useEffect(() => {
+    getProducts();
+  }, []);
+
+  const onChangeHandler = (key) => {
+    setActiveTabKey(key);
+    setEditMode(false);
+  };
+
   return (
     <Tabs
-      onChange={(key) => setActiveTabKey(key)}
+      onChange={(key) => onChangeHandler(key)}
       activeKey={activeTabKey}
       items={items}
       tabPosition={"left"}
@@ -40,4 +82,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;
