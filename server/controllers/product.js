@@ -170,3 +170,11 @@ exports.deleteProduct = async (req, res) => {
     });
   }
 };
+
+// upload images
+exports.uploadImages = async (req, res, next) => {
+  // const {} = req.files;
+  console.log(req.files);
+
+  res.json(req.files);
+};

@@ -46,3 +46,15 @@ export const deleteProduct = async (id) => {
     return error.message;
   }
 };
+
+export const uploadImage = async (formData) => {
+  try {
+    console.log(formData.get("product_images"));
+    const response = await axiosinstance.post(`/upload`, formData, {
+      validateStatus: () => true,
+    });
+    return response.data;
+  } catch (error) {
+    return error.message;
+  }
+};

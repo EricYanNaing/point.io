@@ -29,6 +29,9 @@ const ProductSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    images: {
+      type: [String],
+    },
     status: {
       type: String,
       default: "pending",
