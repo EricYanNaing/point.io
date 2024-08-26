@@ -89,6 +89,14 @@ const Products = ({
                         type="button"
                         onClick={() => editHandler(product._id)}
                       >
+                        <Link className="font-medium text-green-600 me-4 hover:underline">
+                          Upload
+                        </Link>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => editHandler(product._id)}
+                      >
                         <Link className="font-medium text-blue-600 me-4 hover:underline">
                           Edit
                         </Link>

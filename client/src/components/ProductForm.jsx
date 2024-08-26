@@ -4,11 +4,11 @@ import {
   getOldProduct,
   sellProduct,
   updateProductValues,
-} from "../../apicalls/product";
+} from "../apicalls/product";
 import { PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 
-const Addproduct = ({
+const ProductForm = ({
   setActiveTabKey,
   getProducts,
   editMode,
@@ -193,4 +193,4 @@ const Addproduct = ({
   );
 };
 
-export default Addproduct;
+export default ProductForm;
