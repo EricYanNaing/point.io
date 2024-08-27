@@ -1,6 +1,14 @@
 const { response } = require("express");
 const { validationResult } = require("express-validator");
 const Product = require("../models/Product");
+const { v2: cloudinary } = require("cloudinary");
+require("dotenv").config();
+
+cloudinary.config({
+  cloud_name: "dv5muchdi",
+  api_key: "173331153966774",
+  api_secret: process.env.CLOUD_API,
+});
 
 exports.addNewProduct = async (req, res) => {
   const errors = validationResult(req);
@@ -152,8 +160,37 @@ exports.deleteProduct = async (req, res) => {
   try {
     const productDoc = await Product.findOne({ _id: id });
 
+    if (!productDoc) {
+      return res.status(404).json({
+        isSuccess: false,
+        message: error.message,
+      });
+    }
+
     if (req.userId.toString() !== productDoc.seller.toString()) {
       throw new Error("Authroization Failed. ");
+    }
+
+    // https://res.cloudinary.com/dv5muchdi/image/upload/v1724738216/z3ha6rgzap1don0cec6u.png
+    if (productDoc.images && Array.isArray(productDoc.images)) {
+      const deletePromise = productDoc.images.map((img) => {
+        const publicId = img.substring(
+          img.lastIndexOf("/") + 1,
+          img.lastIndexOf(".")
+        );
+
+        return new Promise((resolve, reject) => {
+          cloudinary.uploader.destroy(publicId, (err, result) => {
+            if (err) {
+              reject(new Error("Destroy failed."));
+            } else {
+              resolve(result);
+            }
+          });
+        });
+      });
+
+      await Promise.all(deletePromise);
     }
 
     await Product.findByIdAndDelete(id);
@@ -173,8 +210,38 @@ exports.deleteProduct = async (req, res) => {
 
 // upload images
 exports.uploadImages = async (req, res, next) => {
-  // const {} = req.files;
   console.log(req.files);
 
-  res.json(req.files);
+  const productImages = req.files;
+  const productId = req.body.product_id;
+  let secureArrayUrl = [];
+
+  try {
+    productImages.forEach((img) => {
+      cloudinary.uploader.upload(img.path, async (err, result) => {
+        if (!err) {
+          const url = result.secure_url;
+          secureArrayUrl.push(url);
+
+          if (productImages.length === secureArrayUrl.length) {
+            await Product.findByIdAndUpdate(productId, {
+              $push: { images: secureArrayUrl },
+            });
+            return res.status(200).json({
+              isSuccess: true,
+              message: "Product is uploaded successfully.",
+              secureArrayUrl,
+            });
+          }
+        } else {
+          throw new Error("Cloud upload failed.");
+        }
+      });
+    });
+  } catch (error) {
+    return res.status(404).json({
+      isSuccess: false,
+      message: error.message,
+    });
+  }
 };

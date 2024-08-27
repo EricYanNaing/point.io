@@ -3,7 +3,7 @@ import { useState } from "react";
 import { uploadImage } from "../apicalls/product";
 import { message } from "antd";
 
-const Upload = () => {
+const Upload = ({ editProductId, setActiveTabKey }) => {
   const [preivewImages, setPreviewImages] = useState([]);
   const [images, setImages] = useState([]);
 
@@ -38,14 +38,16 @@ const Upload = () => {
     for (let i = 0; i < images.length; i++) {
       console.log(images);
       formData.append("product_images", images[i]);
-      console.log(formData);
     }
+
+    formData.append("product_id", editProductId);
 
     try {
       const response = await uploadImage(formData);
 
       if (response.isSuccess) {
         message.success(response.message);
+        setActiveTabKey("1");
       } else {
         throw new Error(response.message);
       }
